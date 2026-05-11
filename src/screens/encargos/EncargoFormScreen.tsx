@@ -39,21 +39,15 @@ interface FormData {
   anio_min: string;
   anio_max: string;
   presupuesto: string;
+  caracteristicas: string;
   notas: string;
   estado: EstadoEncargo;
 }
 
 const EMPTY: FormData = {
-  cliente_nombre: '',
-  cliente_telefono: '',
-  cliente_email: '',
-  marca: '',
-  modelo: '',
-  anio_min: '',
-  anio_max: '',
-  presupuesto: '',
-  notas: '',
-  estado: 'pendiente',
+  cliente_nombre: '', cliente_telefono: '', cliente_email: '',
+  marca: '', modelo: '', anio_min: '', anio_max: '',
+  presupuesto: '', caracteristicas: '', notas: '', estado: 'pendiente',
 };
 
 export default function EncargoFormScreen() {
@@ -78,6 +72,7 @@ export default function EncargoFormScreen() {
           anio_min: data.anio_min ? String(data.anio_min) : '',
           anio_max: data.anio_max ? String(data.anio_max) : '',
           presupuesto: data.presupuesto ? String(data.presupuesto) : '',
+          caracteristicas: data.caracteristicas ?? '',
           notas: data.notas ?? '',
           estado: data.estado ?? 'pendiente',
         });
@@ -90,7 +85,6 @@ export default function EncargoFormScreen() {
 
   const handleSave = async () => {
     if (!form.cliente_nombre.trim()) return Alert.alert('Error', 'El nombre del cliente es obligatorio');
-    if (!form.marca.trim() || !form.modelo.trim()) return Alert.alert('Error', 'Marca y modelo son obligatorios');
 
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
@@ -99,11 +93,12 @@ export default function EncargoFormScreen() {
       cliente_nombre: form.cliente_nombre.trim(),
       cliente_telefono: form.cliente_telefono.trim() || null,
       cliente_email: form.cliente_email.trim() || null,
-      marca: form.marca.trim(),
-      modelo: form.modelo.trim(),
+      marca: form.marca.trim() || null,
+      modelo: form.modelo.trim() || null,
       anio_min: form.anio_min ? parseInt(form.anio_min) : null,
       anio_max: form.anio_max ? parseInt(form.anio_max) : null,
       presupuesto: form.presupuesto ? parseFloat(form.presupuesto) : null,
+      caracteristicas: form.caracteristicas.trim() || null,
       notas: form.notas.trim() || null,
       estado: form.estado,
       created_by: user?.id,
@@ -136,10 +131,10 @@ export default function EncargoFormScreen() {
         <Section title="Coche buscado">
           <View style={styles.row}>
             <View style={{ flex: 1 }}>
-              <Field label="Marca *" value={form.marca} onChange={(v) => set('marca', v)} placeholder="Toyota" />
+              <Field label="Marca" value={form.marca} onChange={(v) => set('marca', v)} placeholder="Toyota" />
             </View>
             <View style={{ flex: 1 }}>
-              <Field label="Modelo *" value={form.modelo} onChange={(v) => set('modelo', v)} placeholder="Corolla" />
+              <Field label="Modelo" value={form.modelo} onChange={(v) => set('modelo', v)} placeholder="Corolla" />
             </View>
           </View>
           <View style={styles.row}>
@@ -153,7 +148,19 @@ export default function EncargoFormScreen() {
           <Field label="Presupuesto (€)" value={form.presupuesto} onChange={(v) => set('presupuesto', v)} placeholder="15000" keyboardType="decimal-pad" />
         </Section>
 
-        <Section title="Estado">
+        <Section title="Características buscadas">
+          <TextInput
+            style={[styles.inputBase, styles.textArea]}
+            value={form.caracteristicas}
+            onChangeText={(v) => set('caracteristicas', v)}
+            placeholder="Ej: 7 plazas, automático, techo panorámico, pocos km, color claro..."
+            placeholderTextColor={colors.textMuted}
+            multiline
+            numberOfLines={4}
+          />
+        </Section>
+
+        <Section title="Estado del encargo">
           <View style={styles.estadoRow}>
             {ESTADOS.map((e) => (
               <TouchableOpacity
@@ -169,15 +176,15 @@ export default function EncargoFormScreen() {
           </View>
         </Section>
 
-        <Section title="Notas">
+        <Section title="Notas internas">
           <TextInput
             style={[styles.inputBase, styles.textArea]}
             value={form.notas}
             onChangeText={(v) => set('notas', v)}
-            placeholder="Detalles adicionales..."
+            placeholder="Observaciones, seguimiento..."
             placeholderTextColor={colors.textMuted}
             multiline
-            numberOfLines={4}
+            numberOfLines={3}
           />
         </Section>
 
@@ -233,38 +240,13 @@ const styles = StyleSheet.create({
   content: { padding: spacing.md, paddingBottom: 40 },
   row: { flexDirection: 'row', gap: spacing.sm },
   estadoRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  estadoChip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: 8,
-    borderRadius: radius.full,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceAlt,
-  },
+  estadoChip: { paddingHorizontal: spacing.md, paddingVertical: 8, borderRadius: radius.full, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.surfaceAlt },
   estadoChipActive: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
   estadoText: { fontSize: 13, fontWeight: '600', color: colors.textSecondary },
   estadoTextActive: { color: colors.primary },
-  inputBase: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surfaceAlt,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 10,
-    fontSize: 15,
-    color: colors.text,
-  },
+  inputBase: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, backgroundColor: colors.surfaceAlt, paddingHorizontal: spacing.sm, paddingVertical: 10, fontSize: 15, color: colors.text },
   textArea: { minHeight: 100, textAlignVertical: 'top' },
-  saveBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.primary,
-    borderRadius: radius.md,
-    paddingVertical: 16,
-    marginTop: spacing.md,
-  },
+  saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: 16, marginTop: spacing.md },
   saveBtnText: { color: colors.white, fontSize: 16, fontWeight: '700' },
 });
 
@@ -276,14 +258,5 @@ const sectionStyles = StyleSheet.create({
 const fieldStyles = StyleSheet.create({
   wrap: { marginBottom: spacing.sm },
   label: { ...typography.label, marginBottom: 4 },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surfaceAlt,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 10,
-    fontSize: 15,
-    color: colors.text,
-  },
+  input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, backgroundColor: colors.surfaceAlt, paddingHorizontal: spacing.sm, paddingVertical: 10, fontSize: 15, color: colors.text },
 });

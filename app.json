@@ -21,7 +21,14 @@
       "supportsTablet": false
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "DaSan Auto necesita acceso a tus fotos para añadir imágenes de coches.",
+          "cameraPermission": "DaSan Auto necesita acceso a la cámara para fotografiar los coches."
+        }
+      ]
     ]
   }
 }
