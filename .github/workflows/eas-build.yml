@@ -24,6 +24,19 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli --legacy-peer-deps
 
+      - name: Generate Android Keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore android-keystore.jks \
+            -alias dasan-auto \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass dasan2026 \
+            -keypass dasan2026 \
+            -dname "CN=DaSan Auto, O=DaSan, C=ES" \
+            -noprompt
+
       - name: Init EAS project
         run: eas init --force --non-interactive
         env:
