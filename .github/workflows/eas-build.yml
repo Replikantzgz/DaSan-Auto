@@ -2,7 +2,7 @@ name: Build APK Android
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/car-sales-mobile-app-LHmTs]
   workflow_dispatch:
 
 jobs:
