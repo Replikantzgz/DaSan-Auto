@@ -15,20 +15,24 @@
         "backgroundColor": "#2563EB"
       },
       "package": "com.dasan.auto",
-      "versionCode": 1
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_IMAGES"
+      ]
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "DaSan Auto necesita acceso a la cámara para fotografiar los coches.",
+        "NSPhotoLibraryUsageDescription": "DaSan Auto necesita acceso a tus fotos para añadir imágenes de coches."
+      }
     },
     "plugins": [
       "expo-secure-store",
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "DaSan Auto necesita acceso a tus fotos para añadir imágenes de coches.",
-          "cameraPermission": "DaSan Auto necesita acceso a la cámara para fotografiar los coches."
-        }
-      ]
+      "expo-image-picker"
     ]
   }
 }
