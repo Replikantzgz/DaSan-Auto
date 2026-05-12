@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 import { AuthProvider } from './context/AuthContext';
 import RootNavigator from './navigation/RootNavigator';
+import UpdateModal from './components/UpdateModal';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <NavigationContainer>
           <RootNavigator />
         </NavigationContainer>
+        <UpdateModal />
       </AuthProvider>
     </GestureHandlerRootView>
   );

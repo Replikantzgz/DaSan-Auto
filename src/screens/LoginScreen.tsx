@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -45,11 +46,11 @@ export default function LoginScreen() {
     >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <View style={styles.logoCircle}>
-            <Ionicons name="car-sport" size={40} color={colors.white} />
-          </View>
-          <Text style={styles.title}>DaSan Auto</Text>
-          <Text style={styles.subtitle}>Gestión de compraventa</Text>
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
 
         <View style={[styles.card, shadow.lg]}>
@@ -136,30 +137,15 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: spacing.lg,
+    paddingTop: 60,
   },
   header: {
     alignItems: 'center',
     marginBottom: spacing.xl,
   },
-  logoCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    ...shadow.md,
-  },
-  title: {
-    ...typography.h1,
-    fontSize: 32,
-    color: colors.text,
-  },
-  subtitle: {
-    ...typography.bodySmall,
-    marginTop: 4,
-    color: colors.textSecondary,
+  logo: {
+    width: 260,
+    height: 130,
   },
   card: {
     backgroundColor: colors.surface,
