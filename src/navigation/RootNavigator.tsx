@@ -110,7 +110,7 @@ function MainTabs() {
 }
 
 export default function RootNavigator() {
-  const { session, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -122,7 +122,7 @@ export default function RootNavigator() {
 
   return (
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
-      {session ? (
+      {user ? (
         <RootStack.Screen name="Main" component={MainTabs} />
       ) : (
         <RootStack.Screen name="Login" component={LoginScreen} />

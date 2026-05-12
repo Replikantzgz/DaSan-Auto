@@ -27,13 +27,13 @@ interface Stats {
 }
 
 export default function DashboardScreen() {
-  const { session, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [stats, setStats] = useState<Stats | null>(null);
   const [ultimosAcuerdos, setUltimosAcuerdos] = useState<AcuerdoCerrado[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const nombre = session?.user?.user_metadata?.nombre ?? 'Socio';
+  const nombre = user?.nombre ?? 'Socio';
 
   const loadData = async () => {
     const [encRes, cochesRes, acuerdosRes, acuerdosUltRes] = await Promise.all([

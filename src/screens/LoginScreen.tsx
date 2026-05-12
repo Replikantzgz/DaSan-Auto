@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -11,39 +10,21 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
-const SOCIOS = [
-  { nombre: 'Dani', email: 'dani@dasan.auto' },
-  { nombre: 'Santi', email: 'santi@dasan.auto' },
-];
-
-const REMEMBER_KEY = 'dasan_remember_email';
+const SOCIOS = ['Dani', 'Santi'];
 
 export default function LoginScreen() {
+  const { signIn } = useAuth();
   const [selectedSocio, setSelectedSocio] = useState<number | null>(null);
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    AsyncStorage.getItem(REMEMBER_KEY).then((email) => {
-      if (email) {
-        const idx = SOCIOS.findIndex((s) => s.email === email);
-        if (idx >= 0) {
-          setSelectedSocio(idx);
-          setRememberMe(true);
-        }
-      }
-    });
-  }, []);
-
-  const handleLogin = async () => {
+  const handleLogin = () => {
     if (selectedSocio === null) {
       setError('Selecciona quién eres');
       return;
@@ -53,22 +34,8 @@ export default function LoginScreen() {
       return;
     }
     setError('');
-    setLoading(true);
-
-    const { email } = SOCIOS[selectedSocio];
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (authError) {
-      setError('Contraseña incorrecta');
-    } else {
-      if (rememberMe) {
-        await AsyncStorage.setItem(REMEMBER_KEY, email);
-      } else {
-        await AsyncStorage.removeItem(REMEMBER_KEY);
-      }
-    }
-
-    setLoading(false);
+    const ok = signIn(SOCIOS[selectedSocio], password, rememberMe);
+    if (!ok) setError('Contraseña incorrecta');
   };
 
   return (
@@ -77,7 +44,6 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.logoCircle}>
             <Ionicons name="car-sport" size={40} color={colors.white} />
@@ -86,17 +52,13 @@ export default function LoginScreen() {
           <Text style={styles.subtitle}>Gestión de compraventa</Text>
         </View>
 
-        {/* Card */}
         <View style={[styles.card, shadow.lg]}>
           <Text style={styles.sectionLabel}>¿Quién eres?</Text>
           <View style={styles.socioRow}>
-            {SOCIOS.map((s, i) => (
+            {SOCIOS.map((nombre, i) => (
               <TouchableOpacity
-                key={s.email}
-                style={[
-                  styles.socioBtn,
-                  selectedSocio === i && styles.socioBtnActive,
-                ]}
+                key={nombre}
+                style={[styles.socioBtn, selectedSocio === i && styles.socioBtnActive]}
                 onPress={() => setSelectedSocio(i)}
                 activeOpacity={0.8}
               >
@@ -106,7 +68,7 @@ export default function LoginScreen() {
                   color={selectedSocio === i ? colors.white : colors.primary}
                 />
                 <Text style={[styles.socioBtnText, selectedSocio === i && styles.socioBtnTextActive]}>
-                  {s.nombre}
+                  {nombre}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -152,19 +114,12 @@ export default function LoginScreen() {
           ) : null}
 
           <TouchableOpacity
-            style={[styles.loginBtn, loading && styles.loginBtnDisabled]}
+            style={styles.loginBtn}
             onPress={handleLogin}
-            disabled={loading}
             activeOpacity={0.85}
           >
-            {loading ? (
-              <ActivityIndicator color={colors.white} />
-            ) : (
-              <>
-                <Ionicons name="log-in-outline" size={20} color={colors.white} />
-                <Text style={styles.loginBtnText}>Entrar</Text>
-              </>
-            )}
+            <Ionicons name="log-in-outline" size={20} color={colors.white} />
+            <Text style={styles.loginBtnText}>Entrar</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -296,9 +251,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingVertical: 16,
     marginTop: spacing.sm,
-  },
-  loginBtnDisabled: {
-    opacity: 0.6,
   },
   loginBtnText: {
     color: colors.white,
