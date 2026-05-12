@@ -9,7 +9,9 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/RootNavigator';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
@@ -27,8 +29,11 @@ interface Stats {
   beneficio_total: number;
 }
 
+type Nav = NativeStackNavigationProp<RootStackParamList>;
+
 export default function DashboardScreen() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+  const navigation = useNavigation<Nav>();
   const insets = useSafeAreaInsets();
   const [stats, setStats] = useState<Stats | null>(null);
   const [ultimosAcuerdos, setUltimosAcuerdos] = useState<AcuerdoCerrado[]>([]);
@@ -95,8 +100,8 @@ export default function DashboardScreen() {
           <Text style={styles.greeting}>Hola, {nombre} 👋</Text>
           <Text style={styles.date}>{new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
         </View>
-        <TouchableOpacity onPress={signOut} style={styles.logoutBtn}>
-          <Ionicons name="log-out-outline" size={22} color={colors.textSecondary} />
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={styles.logoutBtn}>
+          <Ionicons name="settings-outline" size={22} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
 

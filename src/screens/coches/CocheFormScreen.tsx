@@ -19,7 +19,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../lib/supabase';
 import CosteExtraRow from '../../components/CosteExtraRow';
 import { colors, radius, shadow, spacing, typography } from '../../theme';
-import { Combustible, CosteExtra, EstadoCoche } from '../../types';
+import { Combustible, CosteExtra, Encargo, EstadoCoche } from '../../types';
 import { CochesStackParamList } from '../../navigation/RootNavigator';
 
 type Nav = NativeStackNavigationProp<CochesStackParamList>;
@@ -41,6 +41,11 @@ const COMBUSTIBLES: { key: Combustible; label: string; emoji: string }[] = [
 ];
 
 const TIPOS = ['SUV', 'Berlina', 'Familiar', 'Monovolumen', 'Cabrio', 'Pickup', 'Furgoneta', 'Otro'];
+const REVISION_ESTADOS = [
+  { key: 'pendiente', label: 'Pendiente', color: '#F59E0B' },
+  { key: 'en_revision', label: 'En revisión', color: '#3B82F6' },
+  { key: 'ok', label: 'OK ✓', color: '#10B981' },
+];
 
 interface FormData {
   marca: string;
@@ -58,12 +63,16 @@ interface FormData {
   estado: EstadoCoche;
   notas: string;
   fotos: string[];
+  revision_estado: string;
+  revision_coste: string;
+  revision_notas: string;
 }
 
 const EMPTY: FormData = {
   marca: '', modelo: '', anio: '', version: '', color: '', km: '',
   matricula: '', combustible: '', tipo: '', precio_compra: '',
   costes_extra: [], precio_venta: '', estado: 'disponible', notas: '', fotos: [],
+  revision_estado: 'pendiente', revision_coste: '', revision_notas: '',
 };
 
 export default function CocheFormScreen() {
@@ -75,6 +84,7 @@ export default function CocheFormScreen() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(!!id);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [encargosCompatibles, setEncargosCompatibles] = useState<Encargo[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -96,11 +106,26 @@ export default function CocheFormScreen() {
           estado: data.estado ?? 'disponible',
           notas: data.notas ?? '',
           fotos: Array.isArray(data.fotos) ? data.fotos : [],
+          revision_estado: data.revision_estado ?? 'pendiente',
+          revision_coste: data.revision_coste ? String(data.revision_coste) : '',
+          revision_notas: data.revision_notas ?? '',
         });
+        if (data.precio_venta) loadEncargosCompatibles(data.precio_venta);
       }
       setInitialLoading(false);
     });
   }, [id]);
+
+  const loadEncargosCompatibles = async (precioVenta: number) => {
+    const { data } = await supabase
+      .from('encargos')
+      .select('*')
+      .in('estado', ['pendiente', 'en_proceso'])
+      .gte('presupuesto', precioVenta)
+      .order('presupuesto', { ascending: true })
+      .limit(5);
+    setEncargosCompatibles((data ?? []) as Encargo[]);
+  };
 
   const set = (key: keyof FormData, val: any) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -192,6 +217,9 @@ export default function CocheFormScreen() {
       estado: form.estado,
       notas: form.notas.trim() || null,
       fotos: form.fotos,
+      revision_estado: form.revision_estado,
+      revision_coste: form.revision_coste ? parseFloat(form.revision_coste) : null,
+      revision_notas: form.revision_notas.trim() || null,
     };
 
     const { error } = id
@@ -387,6 +415,49 @@ export default function CocheFormScreen() {
           </View>
         </Section>
 
+        {/* Revisión mecánico */}
+        <Section title="Revisión mecánico">
+          <View style={styles.pillRow}>
+            {REVISION_ESTADOS.map((r) => (
+              <TouchableOpacity
+                key={r.key}
+                style={[styles.pill, form.revision_estado === r.key && { borderColor: r.color, backgroundColor: r.color + '20' }]}
+                onPress={() => set('revision_estado', r.key)}
+              >
+                <Text style={[styles.pillText, form.revision_estado === r.key && { color: r.color }]}>{r.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <View style={{ marginTop: spacing.sm }}>
+            <Field label="Coste revisión (€)" value={form.revision_coste} onChange={(v) => set('revision_coste', v)} placeholder="0" keyboardType="decimal-pad" />
+          </View>
+          <TextInput
+            style={[styles.inputBase, { minHeight: 60, textAlignVertical: 'top', marginTop: 4 }]}
+            value={form.revision_notas}
+            onChangeText={(v) => set('revision_notas', v)}
+            placeholder="Notas del mecánico..."
+            placeholderTextColor={colors.textMuted}
+            multiline
+            numberOfLines={2}
+          />
+        </Section>
+
+        {/* Cruce con encargos compatibles */}
+        {encargosCompatibles.length > 0 && (
+          <Section title="Clientes que pueden estar interesados">
+            {encargosCompatibles.map((e) => (
+              <View key={e.id} style={styles.encargoRow}>
+                <Ionicons name="person-outline" size={16} color={colors.primary} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.encargoNombre}>{e.cliente_nombre || '—'}</Text>
+                  {e.marca ? <Text style={styles.encargoSub}>{e.marca}</Text> : null}
+                </View>
+                <Text style={styles.encargoPpto}>hasta {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(e.presupuesto ?? 0)}</Text>
+              </View>
+            ))}
+          </Section>
+        )}
+
         <Section title="Notas">
           <TextInput
             style={[styles.inputBase, styles.textArea]}
@@ -527,6 +598,10 @@ const styles = StyleSheet.create({
   fotoBtnText: { color: colors.primary, fontWeight: '600', fontSize: 14 },
   inputBase: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, backgroundColor: colors.surfaceAlt, paddingHorizontal: spacing.sm, paddingVertical: 10, fontSize: 15, color: colors.text },
   textArea: { minHeight: 100, textAlignVertical: 'top' },
+  encargoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border },
+  encargoNombre: { fontSize: 14, fontWeight: '700', color: colors.text },
+  encargoSub: { fontSize: 12, color: colors.textSecondary },
+  encargoPpto: { fontSize: 13, color: colors.success, fontWeight: '600' },
   saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: 16, marginTop: spacing.md },
   saveBtnText: { color: colors.white, fontSize: 16, fontWeight: '700' },
 });

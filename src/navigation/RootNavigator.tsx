@@ -8,6 +8,7 @@ import { colors } from '../theme';
 
 import LoginScreen from '../screens/LoginScreen';
 import DashboardScreen from '../screens/DashboardScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 import EncargosScreen from '../screens/encargos/EncargosScreen';
 import EncargoFormScreen from '../screens/encargos/EncargoFormScreen';
 import CochesScreen from '../screens/coches/CochesScreen';
@@ -18,6 +19,7 @@ import AcuerdoFormScreen from '../screens/acuerdos/AcuerdoFormScreen';
 export type RootStackParamList = {
   Login: undefined;
   Main: undefined;
+  Settings: undefined;
 };
 
 export type EncargosStackParamList = {
@@ -123,7 +125,14 @@ export default function RootNavigator() {
   return (
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
       {user ? (
-        <RootStack.Screen name="Main" component={MainTabs} />
+        <>
+          <RootStack.Screen name="Main" component={MainTabs} />
+          <RootStack.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{ headerShown: true, title: 'Ajustes', ...screenOptions }}
+          />
+        </>
       ) : (
         <RootStack.Screen name="Login" component={LoginScreen} />
       )}
