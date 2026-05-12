@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
@@ -28,6 +29,7 @@ interface Stats {
 
 export default function DashboardScreen() {
   const { user, signOut } = useAuth();
+  const insets = useSafeAreaInsets();
   const [stats, setStats] = useState<Stats | null>(null);
   const [ultimosAcuerdos, setUltimosAcuerdos] = useState<AcuerdoCerrado[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +86,7 @@ export default function DashboardScreen() {
   return (
     <ScrollView
       style={styles.root}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.md }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
     >
       {/* Header */}
@@ -187,7 +189,7 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.md, paddingBottom: spacing.xl },
+  content: { padding: spacing.md, paddingBottom: spacing.xl, paddingTop: spacing.md },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
