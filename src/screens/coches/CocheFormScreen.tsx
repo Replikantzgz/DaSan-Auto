@@ -174,15 +174,11 @@ export default function CocheFormScreen() {
     new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
 
   const handleSave = async () => {
-    if (!form.marca.trim() || !form.modelo.trim()) return Alert.alert('Error', 'Marca y modelo son obligatorios');
-    if (!form.precio_compra) return Alert.alert('Error', 'El precio de compra es obligatorio');
-
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
 
     const payload = {
-      marca: form.marca.trim(),
-      modelo: form.modelo.trim(),
+      marca: form.marca.trim() || null,
+      modelo: form.modelo.trim() || null,
       anio: form.anio ? parseInt(form.anio) : null,
       version: form.version.trim() || null,
       color: form.color.trim() || null,
@@ -196,7 +192,6 @@ export default function CocheFormScreen() {
       estado: form.estado,
       notas: form.notas.trim() || null,
       fotos: form.fotos,
-      created_by: user?.id,
     };
 
     const { error } = id

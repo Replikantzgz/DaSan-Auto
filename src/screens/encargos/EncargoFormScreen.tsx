@@ -84,13 +84,10 @@ export default function EncargoFormScreen() {
   const set = (key: keyof FormData, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
   const handleSave = async () => {
-    if (!form.cliente_nombre.trim()) return Alert.alert('Error', 'El nombre del cliente es obligatorio');
-
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
 
     const payload = {
-      cliente_nombre: form.cliente_nombre.trim(),
+      cliente_nombre: form.cliente_nombre.trim() || null,
       cliente_telefono: form.cliente_telefono.trim() || null,
       cliente_email: form.cliente_email.trim() || null,
       marca: form.marca.trim() || null,
@@ -101,7 +98,6 @@ export default function EncargoFormScreen() {
       caracteristicas: form.caracteristicas.trim() || null,
       notas: form.notas.trim() || null,
       estado: form.estado,
-      created_by: user?.id,
     };
 
     const { error } = id

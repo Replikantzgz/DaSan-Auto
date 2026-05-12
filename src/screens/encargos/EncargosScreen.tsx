@@ -132,13 +132,17 @@ export default function EncargosScreen() {
         </View>
       ) : null}
 
-      <TouchableOpacity
-        style={styles.deleteBtn}
-        onPress={() => handleDelete(item.id, item.cliente_nombre)}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        <Ionicons name="trash-outline" size={18} color={colors.danger} />
-      </TouchableOpacity>
+      <View style={styles.cardFooter}>
+        <Text style={styles.fechaText}>
+          {new Date(item.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+        </Text>
+        <TouchableOpacity
+          onPress={() => handleDelete(item.id, item.cliente_nombre)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons name="trash-outline" size={18} color={colors.danger} />
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 
@@ -242,6 +246,8 @@ const styles = StyleSheet.create({
   detailText: { fontSize: 13, color: colors.textSecondary },
   caracteristicasWrap: { flexDirection: 'row', alignItems: 'flex-start', gap: 4, marginTop: 4 },
   caracteristicasText: { flex: 1, fontSize: 12, color: colors.textMuted, fontStyle: 'italic' },
+  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.sm },
+  fechaText: { fontSize: 11, color: colors.textMuted },
   deleteBtn: { position: 'absolute', top: spacing.md, right: spacing.md },
   empty: { alignItems: 'center', paddingTop: 80, gap: spacing.md },
   emptyText: { ...typography.bodySmall, color: colors.textMuted },

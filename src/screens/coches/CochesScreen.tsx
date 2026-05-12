@@ -201,13 +201,17 @@ export default function CochesScreen() {
           </Text>
         </View>
 
-        <TouchableOpacity
-          style={styles.deleteBtn}
-          onPress={() => handleDelete(item.id, `${item.marca} ${item.modelo}`)}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Ionicons name="trash-outline" size={18} color={colors.danger} />
-        </TouchableOpacity>
+        <View style={styles.cardFooter}>
+          <Text style={styles.fechaText}>
+            {new Date(item.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </Text>
+          <TouchableOpacity
+            onPress={() => handleDelete(item.id, `${item.marca ?? ''} ${item.modelo ?? ''}`.trim() || 'este coche')}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons name="trash-outline" size={18} color={colors.danger} />
+          </TouchableOpacity>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -328,6 +332,8 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: colors.border, marginVertical: 4 },
   margenWrap: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, borderRadius: radius.sm, paddingHorizontal: spacing.sm, paddingVertical: 6 },
   margenText: { fontSize: 13, fontWeight: '700' },
+  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.sm },
+  fechaText: { fontSize: 11, color: colors.textMuted },
   deleteBtn: { position: 'absolute', top: spacing.md, right: spacing.md },
   empty: { alignItems: 'center', paddingTop: 80, gap: spacing.md },
   emptyText: { ...typography.bodySmall, color: colors.textMuted },
