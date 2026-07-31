@@ -17,6 +17,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth';
 import CosteExtraRow from '../../components/CosteExtraRow';
 import { colors, radius, shadow, spacing, typography } from '../../theme';
 import { Combustible, CosteExtra, Encargo, EstadoCoche } from '../../types';
@@ -79,6 +80,7 @@ export default function CocheFormScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const id = route.params?.id;
+  const { user } = useAuth();
 
   const [form, setForm] = useState<FormData>(EMPTY);
   const [loading, setLoading] = useState(false);
@@ -224,7 +226,7 @@ export default function CocheFormScreen() {
 
     const { error } = id
       ? await supabase.from('coches_disponibles').update(payload).eq('id', id)
-      : await supabase.from('coches_disponibles').insert(payload);
+      : await supabase.from('coches_disponibles').insert({ ...payload, creado_por: user?.nombre ?? null });
 
     setLoading(false);
     if (error) {

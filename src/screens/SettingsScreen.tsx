@@ -112,7 +112,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Aplicación</Text>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Versión</Text>
-            <Text style={styles.infoValue}>1.4.0</Text>
+            <Text style={styles.infoValue}>1.5.0</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Proyecto</Text>

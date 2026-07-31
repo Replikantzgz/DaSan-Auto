@@ -15,6 +15,7 @@ import { RootStackParamList } from '../navigation/RootNavigator';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { contarNuevas } from '../lib/novedades';
 import StatCard from '../components/StatCard';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 import { AcuerdoCerrado, Encargo } from '../types';
@@ -39,6 +40,7 @@ export default function DashboardScreen() {
   const [ultimosAcuerdos, setUltimosAcuerdos] = useState<AcuerdoCerrado[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [novedades, setNovedades] = useState(0);
 
   const nombre = user?.nombre ?? 'Socio';
 
@@ -76,7 +78,8 @@ export default function DashboardScreen() {
     useCallback(() => {
       setLoading(true);
       loadData().finally(() => setLoading(false));
-    }, [])
+      if (user) contarNuevas(user.nombre).then(setNovedades).catch(() => {});
+    }, [user])
   );
 
   const onRefresh = async () => {
@@ -100,9 +103,19 @@ export default function DashboardScreen() {
           <Text style={styles.greeting}>Hola, {nombre} 👋</Text>
           <Text style={styles.date}>{new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={styles.logoutBtn}>
-          <Ionicons name="settings-outline" size={22} color={colors.textSecondary} />
-        </TouchableOpacity>
+        <View style={styles.headerBtns}>
+          <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.logoutBtn}>
+            <Ionicons name="notifications-outline" size={22} color={colors.textSecondary} />
+            {novedades > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{novedades > 9 ? '9+' : novedades}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={styles.logoutBtn}>
+            <Ionicons name="settings-outline" size={22} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {loading || !stats ? (
@@ -203,12 +216,28 @@ const styles = StyleSheet.create({
   },
   greeting: { ...typography.h2, fontSize: 24 },
   date: { ...typography.bodySmall, marginTop: 2, textTransform: 'capitalize' },
+  headerBtns: { flexDirection: 'row', gap: spacing.sm },
   logoutBtn: {
     padding: spacing.sm,
     backgroundColor: colors.surface,
     borderRadius: radius.full,
     ...shadow.sm,
   },
+  badge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: colors.danger,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: colors.surface,
+  },
+  badgeText: { color: colors.white, fontSize: 10, fontWeight: '800' },
   heroCard: {
     backgroundColor: colors.primary,
     borderRadius: radius.xl,

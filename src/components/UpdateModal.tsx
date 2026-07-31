@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
-const CURRENT_VERSION = '1.4.0';
+const CURRENT_VERSION = '1.5.0';
 
 function compareVersions(a: string, b: string): number {
   const pa = a.split('.').map(Number);

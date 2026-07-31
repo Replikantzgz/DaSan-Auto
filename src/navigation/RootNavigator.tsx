@@ -9,6 +9,7 @@ import { colors } from '../theme';
 import LoginScreen from '../screens/LoginScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
 import EncargosScreen from '../screens/encargos/EncargosScreen';
 import EncargoFormScreen from '../screens/encargos/EncargoFormScreen';
 import CochesScreen from '../screens/coches/CochesScreen';
@@ -20,6 +21,7 @@ export type RootStackParamList = {
   Login: undefined;
   Main: undefined;
   Settings: undefined;
+  Notifications: undefined;
 };
 
 export type EncargosStackParamList = {
@@ -131,6 +133,11 @@ export default function RootNavigator() {
             name="Settings"
             component={SettingsScreen}
             options={{ headerShown: true, title: 'Ajustes', ...screenOptions }}
+          />
+          <RootStack.Screen
+            name="Notifications"
+            component={NotificationsScreen}
+            options={{ headerShown: true, title: 'Novedades', ...screenOptions }}
           />
         </>
       ) : (

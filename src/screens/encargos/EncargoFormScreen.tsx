@@ -15,6 +15,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth';
 import { colors, radius, shadow, spacing, typography } from '../../theme';
 import { CocheDisponible, EstadoEncargo } from '../../types';
 import { EncargosStackParamList } from '../../navigation/RootNavigator';
@@ -53,6 +54,7 @@ export default function EncargoFormScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const id = route.params?.id;
+  const { user } = useAuth();
 
   const [form, setForm] = useState<FormData>(EMPTY);
   const [loading, setLoading] = useState(false);
@@ -114,7 +116,7 @@ export default function EncargoFormScreen() {
 
     const { error } = id
       ? await supabase.from('encargos').update(payload).eq('id', id)
-      : await supabase.from('encargos').insert(payload);
+      : await supabase.from('encargos').insert({ ...payload, creado_por: user?.nombre ?? null });
 
     setLoading(false);
     if (error) Alert.alert('Error', 'No se pudo guardar el encargo');
